@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Academic Poster Template — A0 Portrait</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;700&display=swap');
+
+/*
+  ================================================================
+  THEME — ここだけ書き換えれば全体に反映
+  ================================================================
+
+  【発表先切り替え】
+  HI学会（本設定）:
+    --col-primary:   #502F8E  ← 岡山県立大 紫
+    --col-secondary: #F97213  ← HI学会オレンジ（jp.his.gr.jp 実測値）
+
+  認知科学会など他学会向けに変えるときは
+  --col-primary / --col-secondary を差し替えるだけ．
+  ================================================================
+*/
+:root {
+  /* メイン2色 */
+  --col-primary:    #502F8E;
+  --col-secondary:  #F97213;
+  --col-on-primary: #FFFFFF;
+  --col-on-secondary: #FFFFFF;
+
+  /* 補助カラーパレット（必要に応じて使う） */
+  --col-red:    #D4333D;
+  --col-blue:   #0171BE;
+  --col-yellow: #F3AB26;
+  --col-teal:   #287E88;
+
+  /* 背景・サーフェス */
+  --col-bg:      #FFFFFF;   /* ポスター背景：白 */
+  --col-surface: #F7F5FA;   /* カード背景：わずかに紫みがかった白 */
+  --col-border:  rgba(80,47,142,0.15);
+
+  /* テキスト */
+  --col-text:    #1A1118;
+  --col-text-sub:#5A4D65;
+  --col-muted:   #8E80A0;
+
+  /* フォント */
+  --font-display: 'Noto Serif JP', 'Georgia', serif;
+  --font-body:    'Noto Sans JP', 'Hiragino Sans', '游ゴシック', 'Yu Gothic', sans-serif;
+
+  /* ================================================================
+     フォントサイズ — A0実寸ガイドライン準拠（pt単位固定）
+     複数学会・大学ガイドラインのコンセンサス値
+     想定閲覧距離：1–2m
+     ================================================================ */
+  --fs-title:     90pt;   /* タイトル：85–100pt推奨 */
+  --fs-authors:   48pt;   /* 著者名 */
+  --fs-affil:     36pt;   /* 所属 */
+  --fs-tag:       28pt;   /* タグ・ラベル */
+  --fs-heading:   48pt;   /* 章見出し：36–48pt推奨 */
+  --fs-body:      28pt;   /* 本文：28–36pt（最低24pt） */
+  --fs-sub:       26pt;   /* 補足本文・小見出し */
+  --fs-caption:   24pt;   /* 図キャプション（最低24pt） */
+  --fs-refs:      22pt;   /* 参考文献（例外的に小さくてよい） */
+  --fs-metric:    64pt;   /* 強調数値 */
+  --fs-metric-u:  38pt;   /* 強調数値の単位 */
+
+  /* ================================================================
+     角丸 — 実寸mm指定（見た目比率ではなく実寸統一）
+     ================================================================ */
+  --r-card:  5mm;    /* 本文カード・比較カード標準 */
+  --r-wide:  10mm;   /* 広い背景カード */
+  --r-chip:  2mm;    /* 小ラベル・チップ */
+  /* ヘッダー帯・区切り線・強調罫線は角丸なし（--r-none: 0） */
+
+  /* ================================================================
+     余白 — mm単位
+     ================================================================ */
+  --pad-poster: 10mm;   /* ポスター左右外周余白 */
+  --pad-card:   5mm;    /* カード内側余白 */
+  --pad-chip:   2.5mm;  /* 小ラベル内側余白 */
+  --gap-block:  8mm;    /* ブロック間の縦隙間 */
+
+  /* A0縦 */
+  --poster-w: 841mm;
+  --poster-h: 1189mm;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: #BFBDB8;
+  font-family: var(--font-body);
+  color: var(--col-text);
+}
+
+/* ================================================================
+   スケールラッパー（JSが width / height / margin を動的設定）
+   ================================================================ */
+#scale-wrap {
+  position: relative;
+}
+
+/* ================================================================
+   ポスター本体
+   mm固定・transform-origin: top left
+   flex列でフッターを最下部に押し下げる
+   ================================================================ */
+#poster {
+  width: var(--poster-w);
+  background: var(--col-bg);
+  position: absolute;
+  top: 0; left: 0;
+  transform-origin: top left;
+  overflow: visible;
+  box-shadow: 0 6px 48px rgba(0,0,0,0.22);
+  display: flex;
+  flex-direction: column;
+  min-height: var(--poster-h);
+}
+
+.poster-grow { flex: 1; }
+
+/* ================================================================
+   ヘッダー帯（角丸なし）
+   ================================================================ */
+.ph {
+  background: var(--col-primary);
+  color: var(--col-on-primary);
+  padding: 14mm var(--pad-poster) 11mm;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;   /* 帯は角丸なし */
+}
+/* 装飾円 */
+.ph::before {
+  content: '';
+  position: absolute;
+  right: -60mm; top: -60mm;
+  width: 200mm; height: 200mm;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+.ph::after {
+  content: '';
+  position: absolute;
+  left: 30mm; bottom: -40mm;
+  width: 120mm; height: 120mm;
+  border-radius: 50%;
+  background: rgba(249,114,19,0.12);
+  pointer-events: none;
+}
+.ph-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10mm;
+  align-items: start;
+  position: relative; z-index: 1;
+}
+.ph-logos {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 4mm; flex-shrink: 0;
+}
+.logo-ph {
+  width: 52mm; height: 18mm;
+  border-radius: var(--r-chip);
+  border: 0.5mm solid rgba(255,255,255,0.30);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-caption); opacity: 0.72; color: #fff;
+  text-align: center;
+}
+.ph-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 7mm;
+}
+.ph-authors { font-size: var(--fs-authors); font-weight: 500; opacity: 0.93; margin-bottom: 3mm; }
+.ph-affil   { font-size: var(--fs-affil); opacity: 0.76; margin-bottom: 6mm; line-height: 1.5; }
+.ph-tags    { display: flex; flex-wrap: wrap; gap: 2.5mm; }
+.ph-tag {
+  background: rgba(255,255,255,0.13);
+  border: 0.4mm solid rgba(255,255,255,0.28);
+  border-radius: var(--r-chip);
+  padding: var(--pad-chip) 4mm;
+  font-size: var(--fs-tag); line-height: 1;
+}
+.ph-tag.ac {
+  background: var(--col-secondary);
+  border-color: var(--col-secondary);
+}
+
+/* ================================================================
+   本体：1段組みメインレイアウト
+   全幅ブロックを縦に積む
+   ================================================================ */
+.pb {
+  padding: var(--gap-block) var(--pad-poster);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-block);
+}
+
+/* ================================================================
+   セクションブロック（1段組み全幅カード）
+   ================================================================ */
+.sc {
+  background: var(--col-surface);
+  border-radius: var(--r-card);
+  border: 0.4mm solid var(--col-border);
+  padding: var(--pad-card);
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+  break-inside: avoid;
+}
+
+/* 章見出し：色帯スタイル（角丸なし） */
+.sc-title {
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+  font-family: var(--font-display);
+  font-size: var(--fs-heading);
+  font-weight: 700;
+  color: var(--col-on-primary);
+  background: var(--col-primary);
+  margin: calc(-1 * var(--pad-card)) calc(-1 * var(--pad-card)) 0;
+  padding: 3mm var(--pad-card);
+  border-radius: 0;   /* 帯は角丸なし */
+  line-height: 1.2;
+}
+.sc-title .n {
+  background: var(--col-secondary);
+  color: #fff;
+  min-width: 14mm; height: 14mm;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-sub); font-weight: 700; flex-shrink: 0;
+  font-family: var(--font-body);
+}
+
+/* ================================================================
+   本文テキスト
+   ================================================================ */
+.sc p      { font-size: var(--fs-body); line-height: 1.85; text-align: left; }
+.sc p.sub  { font-size: var(--fs-sub);  color: var(--col-text-sub); line-height: 1.8; }
+.sc ul, .sc ol { padding-left: 2em; display: flex; flex-direction: column; gap: 2.5mm; }
+.sc li     { font-size: var(--fs-body); line-height: 1.8; text-align: left; }
+.sc li::marker { color: var(--col-secondary); font-weight: 700; }
+
+/* 強調ボックス（ハイライト） */
+.hbox {
+  border-left: 1.5mm solid var(--col-secondary);
+  border-radius: 0 var(--r-card) var(--r-card) 0;
+  padding: var(--pad-card);
+  font-size: var(--fs-body); line-height: 1.85;
+  background: rgba(249,114,19,0.06);
+}
+
+/* 紫強調ボックス */
+.hbox-primary {
+  border-left: 1.5mm solid var(--col-primary);
+  border-radius: 0 var(--r-card) var(--r-card) 0;
+  padding: var(--pad-card);
+  font-size: var(--fs-body); line-height: 1.85;
+  background: rgba(80,47,142,0.05);
+}
+
+/* ================================================================
+   カラム分割（カード内で横並びしたい場合のみ使う）
+   ================================================================ */
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+.cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6mm; }
+.cols-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 6mm; }
+.cols-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 6mm; }
+
+/* ================================================================
+   図・グラフプレースホルダー
+   ================================================================ */
+.fig {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(80,47,142,0.04), rgba(80,47,142,0.04) 5mm,
+    transparent 5mm, transparent 12mm
+  );
+  border: 0.5mm dashed rgba(80,47,142,0.25);
+  border-radius: var(--r-card);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3mm; color: var(--col-muted);
+  text-align: center; padding: 5mm;
+}
+.fig .fi  { font-size: 20mm; opacity: 0.30; line-height: 1; }
+.fig .fn  { font-size: var(--fs-sub); }
+.fig .fc  {
+  font-size: var(--fs-caption); opacity: 0.75;
+  border-top: 0.3mm solid var(--col-border);
+  padding-top: 2mm; margin-top: 1mm; width: 100%; text-align: center;
+}
+
+/* 実図を入れる場合 */
+.fig-wrap { border-radius: var(--r-card); overflow: hidden; border: 0.3mm solid var(--col-border); }
+.fig-wrap img { width: 100%; display: block; }
+.fig-cap  {
+  font-size: var(--fs-caption); color: var(--col-text-sub);
+  text-align: center; padding: 2mm var(--pad-card);
+  border-top: 0.3mm solid var(--col-border);
+}
+
+/* ================================================================
+   強調数値カード
+   ================================================================ */
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(38mm, 1fr)); gap: 4mm; }
+.mc {
+  background: var(--col-bg);
+  border-radius: var(--r-card);
+  border: 0.4mm solid var(--col-border);
+  padding: 4mm 3mm; text-align: center;
+}
+.mv {
+  font-family: var(--font-display);
+  font-size: var(--fs-metric);
+  font-weight: 700;
+  color: var(--col-primary); line-height: 1; margin-bottom: 2mm;
+}
+.mv .u { font-size: var(--fs-metric-u); color: var(--col-secondary); }
+.ml { font-size: var(--fs-caption); color: var(--col-text-sub); line-height: 1.4; }
+
+/* ================================================================
+   参考文献
+   ================================================================ */
+.refs { padding-left: 1.8em; display: flex; flex-direction: column; gap: 2mm; }
+.refs li { font-size: var(--fs-refs); color: var(--col-muted); line-height: 1.6; }
+.refs li::marker { color: var(--col-muted); }
+
+/* ================================================================
+   フッター帯（角丸なし，ポスター最下部に来る）
+   ================================================================ */
+.pf {
+  background: var(--col-primary);
+  color: var(--col-on-primary);
+  padding: 6mm var(--pad-poster);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6mm;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+.pf-qr {
+  width: 28mm; height: 28mm; border-radius: var(--r-chip);
+  border: 0.5mm solid rgba(255,255,255,0.28);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-caption); opacity: 0.65; flex-shrink: 0; color: #fff;
+  text-align: center;
+}
+.pf-contact { font-size: var(--fs-sub); opacity: 0.88; line-height: 1.75; }
+.pf-fund    { font-size: var(--fs-caption); opacity: 0.72; max-width: 160mm; text-align: right; line-height: 1.65; }
+
+/* ================================================================
+   印刷：transform 解除・mm実寸でA0出力
+   Chrome推奨：用紙A0・余白なし・背景のグラフィックON
+   ================================================================ */
+@media print {
+  @page { size: 841mm 1189mm; margin: 0; }
+  html, body { background: white !important; }
+  #scale-wrap {
+    padding: 0 !important; margin: 0 !important;
+    width: 841mm !important;
+  }
+  #poster {
+    position: static !important;
+    transform: none !important;
+    width: 841mm !important;
+    min-height: 1189mm !important;
+    box-shadow: none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="scale-wrap">
+<article id="poster">
+
+<!-- ========== HEADER ========== -->
+<header class="ph">
+  <div class="ph-inner">
+    <div>
+      <h1 class="ph-title">
+        研究タイトルをここに入力する：<br>副題がある場合はここに記述
+      </h1>
+      <p class="ph-authors">著者名 A<sup>1</sup>，著者名 B<sup>2</sup>，著者名 C<sup>1</sup></p>
+      <p class="ph-affil">
+        <sup>1</sup> 岡山県立大学 情報工学部 情報システム工学科<br>
+        <sup>2</sup> ○○大学 ○○学部 ○○学科
+      </p>
+      <div class="ph-tags">
+        <span class="ph-tag ac">ヒューマンインタフェースシンポジウム 20XX</span>
+        <span class="ph-tag">PS-○○</span>
+        <span class="ph-tag">20XX年○月　○○市</span>
+      </div>
+    </div>
+    <div class="ph-logos">
+      <div class="logo-ph">大学ロゴ</div>
+      <div class="logo-ph">HI学会ロゴ</div>
+    </div>
+  </div>
+</header>
+
+<!-- ========== BODY（1段組み） ========== -->
+<div class="poster-grow">
+<div class="pb">
+
+  <!-- 1. 背景 -->
+  <section class="sc">
+    <h2 class="sc-title"><span class="n">1</span>背景</h2>
+    <p>
+      研究の社会的・学術的背景をここに記述する．
+      なぜこの問題が重要なのかを明確に示す段落．
+      先行研究の問題点，既存アプローチの限界などを述べる．
+    </p>
+    <div class="hbox">
+      問題の核心を一文でまとめた強調テキスト．読者の目を引くキーメッセージをここに置く．
+    </div>
+    <div class="cols-2">
+      <div class="fig" style="height:80mm">
+        <div class="fi">🖼</div>
+        <div class="fn">背景図・先行研究の概念図</div>
+        <div class="fc">Fig. 1 — キャプションをここに記述する</div>
+      </div>
+      <p class="sub">
+        図の説明や補足コメントをここに追記する．
+        先行研究との関係，本研究が扱う空白領域について述べる．
+      </p>
+    </div>
+  </section>
+
+  <!-- 2. 目的・仮説 -->
+  <section class="sc">
+    <h2 class="sc-title"><span class="n">2</span>目的・仮説</h2>
+    <div class="cols-1-2">
+      <div>
+        <ul>
+          <li>研究目的 1：○○を明らかにする</li>
+          <li>研究目的 2：○○を検討する</li>
+          <li>研究目的 3：○○モデルを構築する</li>
+        </ul>
+      </div>
+      <div class="hbox-primary">
+        <strong>仮説：</strong>○○という条件下では，○○が生じると予測する．
+        この予測は○○理論（Author, year）に基づく．
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 手法 -->
+  <section class="sc">
+    <h2 class="sc-title"><span class="n">3</span>手法</h2>
+    <div class="cols-2">
+      <div style="display:flex;flex-direction:column;gap:4mm">
+        <p>実験・調査の概要を記述する．</p>
+        <ul>
+          <li>参加者：○名（○代，平均年齢 ○歳）</li>
+          <li>刺激：○○を使用，試行数 ○×○</li>
+          <li>測定：○○・○○を記録</li>
+          <li>分析：○○モデル・○○検定を適用</li>
+        </ul>
+        <p class="sub">除外基準や事前登録について補記する．</p>
+      </div>
+      <div class="fig" style="height:90mm">
+        <div class="fi">🔬</div>
+        <div class="fn">実験パラダイム図</div>
+        <div class="fc">Fig. 2 — 実験フロー・手続き</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 結果（主要証拠図：中央配置） -->
+  <section class="sc">
+    <h2 class="sc-title"><span class="n">4</span>結果</h2>
+
+    <div class="metrics">
+      <div class="mc">
+        <div class="mv">○<span class="u">%</span></div>
+        <div class="ml">主要指標1（条件A）</div>
+      </div>
+      <div class="mc">
+        <div class="mv">○<span class="u">ms</span></div>
+        <div class="ml">主要指標2（条件B）</div>
+      </div>
+      <div class="mc">
+        <div class="mv">p<span class="u">&lt;.05</span></div>
+        <div class="ml">統計的有意差</div>
+      </div>
+      <div class="mc">
+        <div class="mv">○<span class="u">N</span></div>
+        <div class="ml">有効サンプル数</div>
+      </div>
+    </div>
+
+    <!-- 主要証拠図：中央・大きめに配置 -->
+    <div class="cols-2">
+      <div class="fig" style="height:130mm">
+        <div class="fi">📊</div>
+        <div class="fn">主要結果グラフ 1</div>
+        <div class="fc">Fig. 3 — キャプション（条件間比較など）</div>
+      </div>
+      <div class="fig" style="height:130mm">
+        <div class="fi">📈</div>
+        <div class="fn">主要結果グラフ 2</div>
+        <div class="fc">Fig. 4 — キャプション（モデルフィットなど）</div>
+      </div>
+    </div>
+
+    <p>
+      結果の記述．○○条件において○○が有意に高かった（<em>p</em> &lt; .05, <em>d</em> = ○）．
+      この傾向は○○においても同様に観察された（<em>F</em>(○,○) = ○, <em>p</em> = ○）．
+    </p>
+  </section>
+
+  <!-- 5. 考察 -->
+  <section class="sc">
+    <h2 class="sc-title"><span class="n">5</span>考察</h2>
+    <div class="hbox">
+      最も重要な解釈・インプリケーション．
+      読者に持ち帰ってほしいメッセージをここに置く．
+    </div>
+    <div class="cols-2">
+      <ul>
+        <li>解釈 1：○○は○○を示唆する</li>
+        <li>解釈 2：○○モデルとの整合性が示された</li>
+        <li>解釈 3：○○という新たな知見が得られた</li>
+        <li>限界：○○については検討の余地がある</li>
+      </ul>
+      <p class="sub">
+        本研究の限界と今後の展望を簡潔に述べる．
+        追実験の計画，応用可能性なども言及する．
+      </p>
+    </div>
+  </section>
+
+  <!-- 6. 結論 + 参考文献（横並び） -->
+  <section class="sc">
+    <h2 class="sc-title"><span class="n">6</span>結論と展望</h2>
+    <div class="cols-2-1">
+      <div style="display:flex;flex-direction:column;gap:4mm">
+        <p>
+          本研究では○○を明らかにした．
+          これは○○という観点から重要な知見である．
+          特に○○の文脈において新たな示唆を与えるものであり，○○理論の拡張に寄与する．
+        </p>
+        <ul>
+          <li>結論 1：○○が実験的に示された</li>
+          <li>結論 2：○○モデルの有効性が確認された</li>
+          <li>今後の課題：○○を扱った追実験・縦断研究を予定</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:var(--fs-sub);color:var(--col-text-sub);margin-bottom:3mm;font-weight:700">参考文献</p>
+        <ol class="refs">
+          <li>著者ら（年）タイトル．雑誌名，巻(号)，頁–頁.</li>
+          <li>Author et al. (year). Title. Journal, vol(no), pp–pp.</li>
+          <li>著者ら（年）タイトル．雑誌名，巻(号)，頁–頁.</li>
+          <li>Author et al. (year). Title. Journal, vol(no), pp–pp.</li>
+          <li>著者ら（年）タイトル．雑誌名，巻(号)，頁–頁.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /pb -->
+</div><!-- /poster-grow -->
+
+<!-- ========== FOOTER ========== -->
+<footer class="pf">
+  <div class="pf-qr">QR<br>CODE</div>
+  <div class="pf-contact">
+    <strong>連絡先：</strong>著者名（所属略称）<br>
+    email@example.ac.jp　｜　https://example.ac.jp/lab
+  </div>
+  <div class="pf-fund">
+    本研究は○○財団研究助成（No. XXXX），<br>
+    日本学術振興会科研費（JPXXXXXX）の支援を受けた．
+  </div>
+</footer>
+
+</article>
+</div><!-- /scale-wrap -->
+
+<script>
+(function () {
+  var MM_W = 841;
+  var MM_H = 1189;
+  var PX_PER_MM = 96 / 25.4;
+  var pxW = MM_W * PX_PER_MM;
+  var pxH = MM_H * PX_PER_MM;
+
+  var wrap   = document.getElementById('scale-wrap');
+  var poster = document.getElementById('poster');
+
+  function fit() {
+    var margin = 32;
+    var availW = window.innerWidth - margin * 2;
+    var scale  = Math.min(1, availW / pxW);
+
+    poster.style.transform = 'scale(' + scale + ')';
+
+    var scaledW = pxW * scale;
+    var scaledH = pxH * scale;
+
+    wrap.style.width      = scaledW + 'px';
+    wrap.style.height     = (scaledH + margin * 2) + 'px';
+    wrap.style.marginLeft = ((window.innerWidth - scaledW) / 2) + 'px';
+    poster.style.top      = margin + 'px';
+    poster.style.left     = '0px';
+  }
+
+  fit();
+  window.addEventListener('resize', fit);
+})();
+</script>
+</body>
+</html>
