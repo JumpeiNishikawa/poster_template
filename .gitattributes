@@ -1,0 +1,10 @@
+# 改行コードを固定し，環境差で差分が荒れるのを防ぐ
+* text=auto eol=lf
+*.ps1 text eol=crlf
+
+# バイナリ（差分・改行変換しない）
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.ico binary

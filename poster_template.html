@@ -362,17 +362,22 @@ html, body {
    Chrome推奨：用紙A0・余白なし・背景のグラフィックON
    ================================================================ */
 @media print {
+  /* @page の size だけはCSS変数を使えないため，:root の --poster-w/h と
+     同じ値を手で書く（lint.mjs が一致を検証する）． */
   @page { size: 841mm 1189mm; margin: 0; }
   html, body { background: white !important; }
   #scale-wrap {
     padding: 0 !important; margin: 0 !important;
-    width: 841mm !important;
+    width: var(--poster-w) !important;
   }
   #poster {
     position: static !important;
     transform: none !important;
-    width: 841mm !important;
-    min-height: 1189mm !important;
+    width: var(--poster-w) !important;
+    /* Chrome は @page の mm→pt を切り捨てるため，min-height を実寸ちょうどに
+       すると 0.3pt ほど溢れて空の2ページ目が出る．1mm 詰めて回避する
+       （A0 では不可視）． */
+    min-height: calc(var(--poster-h) - 1mm) !important;
     box-shadow: none !important;
   }
 }
@@ -424,7 +429,7 @@ html, body {
       問題の核心を一文でまとめた強調テキスト．読者の目を引くキーメッセージをここに置く．
     </div>
     <div class="cols-2">
-      <div class="fig" style="height:80mm">
+      <div class="fig" style="height:60mm">
         <div class="fi">🖼</div>
         <div class="fn">背景図・先行研究の概念図</div>
         <div class="fc">Fig. 1 — キャプションをここに記述する</div>
@@ -468,7 +473,7 @@ html, body {
         </ul>
         <p class="sub">除外基準や事前登録について補記する．</p>
       </div>
-      <div class="fig" style="height:90mm">
+      <div class="fig" style="height:60mm">
         <div class="fi">🔬</div>
         <div class="fn">実験パラダイム図</div>
         <div class="fc">Fig. 2 — 実験フロー・手続き</div>
@@ -501,12 +506,12 @@ html, body {
 
     <!-- 主要証拠図：中央・大きめに配置 -->
     <div class="cols-2">
-      <div class="fig" style="height:130mm">
+      <div class="fig" style="height:80mm">
         <div class="fi">📊</div>
         <div class="fn">主要結果グラフ 1</div>
         <div class="fc">Fig. 3 — キャプション（条件間比較など）</div>
       </div>
-      <div class="fig" style="height:130mm">
+      <div class="fig" style="height:80mm">
         <div class="fi">📈</div>
         <div class="fn">主要結果グラフ 2</div>
         <div class="fc">Fig. 4 — キャプション（モデルフィットなど）</div>
@@ -590,8 +595,15 @@ html, body {
 
 <script>
 (function () {
-  var MM_W = 841;
-  var MM_H = 1189;
+  // サイズは :root の --poster-w / --poster-h から自動取得する．
+  // ここを手で書き換える必要はない（同期ミス防止）．
+  // 変更するのは :root の2変数と @media print の @page size のみ．
+  function readMM(name) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+    return parseFloat(v);   // "841mm" -> 841
+  }
+  var MM_W = readMM('--poster-w');
+  var MM_H = readMM('--poster-h');
   var PX_PER_MM = 96 / 25.4;
   var pxW = MM_W * PX_PER_MM;
   var pxH = MM_H * PX_PER_MM;
