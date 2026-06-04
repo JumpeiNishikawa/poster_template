@@ -12,12 +12,11 @@
   ================================================================
 
   【発表先切り替え】
-  HI学会（本設定）:
-    --col-primary:   #502F8E  ← 岡山県立大 紫
-    --col-secondary: #F97213  ← HI学会オレンジ（jp.his.gr.jp 実測値）
+  サンプル設定（紫系＋オレンジ系）:
+    --col-primary:   #502F8E  ← 機関・学会のブランドカラーに差し替える
+    --col-secondary: #F97213  ← アクセントカラーに差し替える
 
-  認知科学会など他学会向けに変えるときは
-  --col-primary / --col-secondary を差し替えるだけ．
+  発表先に合わせて --col-primary / --col-secondary を差し替えるだけ．
   ================================================================
 */
 :root {
@@ -242,7 +241,7 @@ html, body {
 /* 強調ボックス（ハイライト）— 考察・メッセージの強調に使う */
 .hbox {
   border-left: 1.5mm solid var(--col-secondary);
-  border-radius: var(--r-card);
+  border-radius: 0 var(--r-card) var(--r-card) 0;
   padding: var(--pad-card);
   font-size: var(--fs-body); line-height: 1.85;
   background: rgba(249,114,19,0.06);
@@ -251,7 +250,7 @@ html, body {
 /* 紫強調ボックス */
 .hbox-primary {
   border-left: 1.5mm solid var(--col-primary);
-  border-radius: var(--r-card);
+  border-radius: 0 var(--r-card) var(--r-card) 0;
   padding: var(--pad-card);
   font-size: var(--fs-body); line-height: 1.85;
   background: rgba(80,47,142,0.05);
@@ -406,14 +405,14 @@ cite.cr {
     <div class="ph-right">
       <div class="ph-tags">
         <!-- ac クラスは発表番号タグのみ付ける（強調色）．学会名は当然の文脈なので強調不要 -->
-        <span class="ph-tag">ヒューマンインタフェースシンポジウム 20XX</span>
+        <span class="ph-tag">○○シンポジウム・学会大会 20XX</span>
         <span class="ph-tag ac">PS-○○</span><!-- 発表番号のみ -->
         <span class="ph-tag">20XX年○月　○○市</span><!-- 年月・会場のみ -->
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3mm">
         <p class="ph-authors">著者名 A<sup>1</sup>，著者名 B<sup>2</sup>，著者名 C<sup>1</sup></p>
         <p class="ph-affil">
-          <sup>1</sup> 岡山県立大学 情報工学部 情報システム工学科<br>
+          <sup>1</sup> ○○大学 ○○学部 ○○学科<br>
           <sup>2</sup> ○○大学 ○○学部 ○○学科
         </p>
       </div>
