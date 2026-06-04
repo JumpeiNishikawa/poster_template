@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Academic Poster Template — A0 Portrait</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
 
 /*
   ================================================================
@@ -43,8 +43,7 @@
   --col-text-sub:#5A4D65;
   --col-muted:   #8E80A0;
 
-  /* フォント */
-  --font-display: 'Noto Serif JP', 'Georgia', serif;
+  /* フォント — すべてゴシック体で統一，ウェイトで区別 */
   --font-body:    'Noto Sans JP', 'Hiragino Sans', '游ゴシック', 'Yu Gothic', sans-serif;
 
   /* ================================================================
@@ -57,12 +56,10 @@
   --fs-affil:     36pt;   /* 所属 */
   --fs-tag:       28pt;   /* タグ・ラベル */
   --fs-heading:   48pt;   /* 章見出し：36–48pt推奨 */
-  --fs-body:      28pt;   /* 本文：28–36pt（最低24pt） */
+  --fs-body:      32pt;   /* 本文：28–36pt（最低24pt） */
   --fs-sub:       26pt;   /* 補足本文・小見出し */
   --fs-caption:   24pt;   /* 図キャプション（最低24pt） */
-  --fs-refs:      22pt;   /* 参考文献（例外的に小さくてよい） */
-  --fs-metric:    64pt;   /* 強調数値 */
-  --fs-metric-u:  38pt;   /* 強調数値の単位 */
+  --fs-refs:      22pt;   /* 参考文献・フッター謝辞（例外的に小さくてよい） */
 
   /* ================================================================
      角丸 — 実寸mm指定（見た目比率ではなく実寸統一）
@@ -70,7 +67,7 @@
   --r-card:  5mm;    /* 本文カード・比較カード標準 */
   --r-wide:  10mm;   /* 広い背景カード */
   --r-chip:  2mm;    /* 小ラベル・チップ */
-  /* ヘッダー帯・区切り線・強調罫線は角丸なし（--r-none: 0） */
+  /* ヘッダー帯・フッター帯は角丸なし（--r-none: 0） */
 
   /* ================================================================
      余白 — mm単位
@@ -129,27 +126,9 @@ html, body {
   padding: 14mm var(--pad-poster) 11mm;
   position: relative;
   overflow: hidden;
-  border-radius: 0;   /* 帯は角丸なし */
+  border-radius: 0;
 }
-/* 装飾円 */
-.ph::before {
-  content: '';
-  position: absolute;
-  right: -60mm; top: -60mm;
-  width: 200mm; height: 200mm;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-  pointer-events: none;
-}
-.ph::after {
-  content: '';
-  position: absolute;
-  left: 30mm; bottom: -40mm;
-  width: 120mm; height: 120mm;
-  border-radius: 50%;
-  background: rgba(249,114,19,0.12);
-  pointer-events: none;
-}
+/* 装飾円は削除 */
 .ph-inner {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -157,28 +136,35 @@ html, body {
   align-items: start;
   position: relative; z-index: 1;
 }
-.ph-logos {
-  display: flex; flex-direction: column;
-  align-items: flex-end; gap: 4mm; flex-shrink: 0;
-}
-.logo-ph {
-  width: 52mm; height: 18mm;
-  border-radius: var(--r-chip);
-  border: 0.5mm solid rgba(255,255,255,0.30);
-  display: flex; align-items: center; justify-content: center;
-  font-size: var(--fs-caption); opacity: 0.72; color: #fff;
-  text-align: center;
+/* 右カラム：タグ（学会名・番号）→ 著者名 → 所属の順に縦積み，右揃え */
+.ph-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4mm;
+  flex-shrink: 0;
+  max-width: 280mm;
 }
 .ph-title {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--fs-title);
-  font-weight: 700;
+  font-weight: 900;
   line-height: 1.25;
-  margin-bottom: 7mm;
+  margin-bottom: 0;
 }
-.ph-authors { font-size: var(--fs-authors); font-weight: 500; opacity: 0.93; margin-bottom: 3mm; }
-.ph-affil   { font-size: var(--fs-affil); opacity: 0.76; margin-bottom: 6mm; line-height: 1.5; }
-.ph-tags    { display: flex; flex-wrap: wrap; gap: 2.5mm; }
+.ph-authors {
+  font-size: var(--fs-authors);
+  font-weight: 500;
+  opacity: 0.93;
+  text-align: right;
+}
+.ph-affil {
+  font-size: var(--fs-affil);
+  opacity: 0.76;
+  line-height: 1.5;
+  text-align: right;
+}
+.ph-tags { display: flex; flex-wrap: wrap; gap: 2.5mm; justify-content: flex-end; }
 .ph-tag {
   background: rgba(255,255,255,0.13);
   border: 0.4mm solid rgba(255,255,255,0.28);
@@ -214,21 +200,23 @@ html, body {
   flex-direction: column;
   gap: 4mm;
   break-inside: avoid;
+  overflow: hidden;   /* タイトル帯の上角丸をカードに合わせてクリップ */
 }
 
-/* 章見出し：色帯スタイル（角丸なし） */
+/* 章見出し：色帯スタイル，上2角はカードに合わせて角丸 */
 .sc-title {
   display: flex;
   align-items: center;
   gap: 3mm;
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: var(--fs-heading);
   font-weight: 700;
   color: var(--col-on-primary);
   background: var(--col-primary);
   margin: calc(-1 * var(--pad-card)) calc(-1 * var(--pad-card)) 0;
   padding: 3mm var(--pad-card);
-  border-radius: 0;   /* 帯は角丸なし */
+  /* overflow:hidden が親にあるので上2角は自動でクリップされる */
+  border-radius: 0;
   line-height: 1.2;
 }
 .sc-title .n {
@@ -250,7 +238,7 @@ html, body {
 .sc li     { font-size: var(--fs-body); line-height: 1.8; text-align: left; }
 .sc li::marker { color: var(--col-secondary); font-weight: 700; }
 
-/* 強調ボックス（ハイライト） */
+/* 強調ボックス（ハイライト）— 考察・メッセージの強調に使う */
 .hbox {
   border-left: 1.5mm solid var(--col-secondary);
   border-radius: 0 var(--r-card) var(--r-card) 0;
@@ -310,25 +298,6 @@ html, body {
 }
 
 /* ================================================================
-   強調数値カード
-   ================================================================ */
-.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(38mm, 1fr)); gap: 4mm; }
-.mc {
-  background: var(--col-bg);
-  border-radius: var(--r-card);
-  border: 0.4mm solid var(--col-border);
-  padding: 4mm 3mm; text-align: center;
-}
-.mv {
-  font-family: var(--font-display);
-  font-size: var(--fs-metric);
-  font-weight: 700;
-  color: var(--col-primary); line-height: 1; margin-bottom: 2mm;
-}
-.mv .u { font-size: var(--fs-metric-u); color: var(--col-secondary); }
-.ml { font-size: var(--fs-caption); color: var(--col-text-sub); line-height: 1.4; }
-
-/* ================================================================
    参考文献
    ================================================================ */
 .refs { padding-left: 1.8em; display: flex; flex-direction: column; gap: 2mm; }
@@ -341,12 +310,13 @@ html, body {
 .pf {
   background: var(--col-primary);
   color: var(--col-on-primary);
-  padding: 6mm var(--pad-poster);
+  padding: 5mm var(--pad-poster);
   display: flex; align-items: center; justify-content: space-between;
   gap: 6mm;
   border-radius: 0;
   flex-shrink: 0;
 }
+/* QRコードが不要な場合は <div class="pf-qr hidden"> にする */
 .pf-qr {
   width: 28mm; height: 28mm; border-radius: var(--r-chip);
   border: 0.5mm solid rgba(255,255,255,0.28);
@@ -355,7 +325,17 @@ html, body {
   text-align: center;
 }
 .pf-contact { font-size: var(--fs-sub); opacity: 0.88; line-height: 1.75; }
-.pf-fund    { font-size: var(--fs-caption); opacity: 0.72; max-width: 160mm; text-align: right; line-height: 1.65; }
+/* 謝辞が不要な場合は <div class="pf-fund hidden"> にする */
+.pf-fund {
+  font-size: var(--fs-refs);
+  opacity: 0.72;
+  max-width: 200mm;
+  text-align: right;
+  line-height: 1.55;
+}
+
+/* 非表示ユーティリティ — QR・謝辞が不要なときに使う */
+.hidden { display: none !important; }
 
 /* ================================================================
    印刷：transform 解除・mm実寸でA0出力
@@ -391,24 +371,22 @@ html, body {
 <!-- ========== HEADER ========== -->
 <header class="ph">
   <div class="ph-inner">
-    <div>
-      <h1 class="ph-title">
-        研究タイトルをここに入力する：<br>副題がある場合はここに記述
-      </h1>
-      <p class="ph-authors">著者名 A<sup>1</sup>，著者名 B<sup>2</sup>，著者名 C<sup>1</sup></p>
-      <p class="ph-affil">
-        <sup>1</sup> 岡山県立大学 情報工学部 情報システム工学科<br>
-        <sup>2</sup> ○○大学 ○○学部 ○○学科
-      </p>
+    <!-- 左：タイトルのみ -->
+    <h1 class="ph-title">
+      研究タイトルをここに入力する：<br>副題がある場合はここに記述
+    </h1>
+    <!-- 右：学会・発表情報（上）→ 著者名・所属（下）右揃え -->
+    <div class="ph-right">
       <div class="ph-tags">
         <span class="ph-tag ac">ヒューマンインタフェースシンポジウム 20XX</span>
         <span class="ph-tag">PS-○○</span>
         <span class="ph-tag">20XX年○月　○○市</span>
       </div>
-    </div>
-    <div class="ph-logos">
-      <div class="logo-ph">大学ロゴ</div>
-      <div class="logo-ph">HI学会ロゴ</div>
+      <p class="ph-authors">著者名 A<sup>1</sup>，著者名 B<sup>2</sup>，著者名 C<sup>1</sup></p>
+      <p class="ph-affil">
+        <sup>1</sup> 岡山県立大学 情報工学部 情報システム工学科<br>
+        <sup>2</sup> ○○大学 ○○学部 ○○学科
+      </p>
     </div>
   </div>
 </header>
@@ -481,30 +459,11 @@ html, body {
     </div>
   </section>
 
-  <!-- 4. 結果（主要証拠図：中央配置） -->
+  <!-- 4. 結果・考察（統合） -->
   <section class="sc">
-    <h2 class="sc-title"><span class="n">4</span>結果</h2>
+    <h2 class="sc-title"><span class="n">4</span>結果・考察</h2>
 
-    <div class="metrics">
-      <div class="mc">
-        <div class="mv">○<span class="u">%</span></div>
-        <div class="ml">主要指標1（条件A）</div>
-      </div>
-      <div class="mc">
-        <div class="mv">○<span class="u">ms</span></div>
-        <div class="ml">主要指標2（条件B）</div>
-      </div>
-      <div class="mc">
-        <div class="mv">p<span class="u">&lt;.05</span></div>
-        <div class="ml">統計的有意差</div>
-      </div>
-      <div class="mc">
-        <div class="mv">○<span class="u">N</span></div>
-        <div class="ml">有効サンプル数</div>
-      </div>
-    </div>
-
-    <!-- 主要証拠図：中央・大きめに配置 -->
+    <!-- 主要証拠図 -->
     <div class="cols-2">
       <div class="fig" style="height:80mm">
         <div class="fi">📊</div>
@@ -518,19 +477,20 @@ html, body {
       </div>
     </div>
 
-    <p>
-      結果の記述．○○条件において○○が有意に高かった（<em>p</em> &lt; .05, <em>d</em> = ○）．
-      この傾向は○○においても同様に観察された（<em>F</em>(○,○) = ○, <em>p</em> = ○）．
-    </p>
-  </section>
+    <!-- 結果の記述（粛々と） -->
+    <ul>
+      <li>○○条件において○○が有意に高かった（<em>p</em> &lt; .05, <em>d</em> = ○）</li>
+      <li>この傾向は○○においても同様に観察された（<em>F</em>(○,○) = ○, <em>p</em> = ○）</li>
+      <li>○○と○○の間には有意な交互作用が認められた（<em>p</em> = ○）</li>
+    </ul>
 
-  <!-- 5. 考察 -->
-  <section class="sc">
-    <h2 class="sc-title"><span class="n">5</span>考察</h2>
+    <!-- 考察・メッセージ：最も強調 -->
     <div class="hbox">
-      最も重要な解釈・インプリケーション．
+      <strong>考察：</strong>最も重要な解釈・インプリケーション．
       読者に持ち帰ってほしいメッセージをここに置く．
+      ○○は○○を示唆し，○○モデルとの整合性が示された．
     </div>
+
     <div class="cols-2">
       <ul>
         <li>解釈 1：○○は○○を示唆する</li>
@@ -545,9 +505,9 @@ html, body {
     </div>
   </section>
 
-  <!-- 6. 結論 + 参考文献（横並び） -->
+  <!-- 5. 結論 + 参考文献（横並び） -->
   <section class="sc">
-    <h2 class="sc-title"><span class="n">6</span>結論と展望</h2>
+    <h2 class="sc-title"><span class="n">5</span>結論と展望</h2>
     <div class="cols-2-1">
       <div style="display:flex;flex-direction:column;gap:4mm">
         <p>
@@ -578,6 +538,8 @@ html, body {
 </div><!-- /poster-grow -->
 
 <!-- ========== FOOTER ========== -->
+<!-- QRコードが不要なときは class="pf-qr hidden" にする -->
+<!-- 謝辞が不要なときは class="pf-fund hidden" にする -->
 <footer class="pf">
   <div class="pf-qr">QR<br>CODE</div>
   <div class="pf-contact">
@@ -585,8 +547,7 @@ html, body {
     email@example.ac.jp　｜　https://example.ac.jp/lab
   </div>
   <div class="pf-fund">
-    本研究は○○財団研究助成（No. XXXX），<br>
-    日本学術振興会科研費（JPXXXXXX）の支援を受けた．
+    本研究は○○財団研究助成（No. XXXX），日本学術振興会科研費（JPXXXXXX）の支援を受けた．
   </div>
 </footer>
 
