@@ -141,9 +141,10 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4mm;
+  justify-content: space-between;
   flex-shrink: 0;
   max-width: 280mm;
+  align-self: stretch;   /* ヘッダー全高に引き伸ばしてタイトルと高さを揃える */
 }
 .ph-title {
   font-family: var(--font-body);
@@ -369,24 +370,39 @@ html, body {
 <article id="poster">
 
 <!-- ========== HEADER ========== -->
+<!--
+  【エージェントへの指示】
+  このヘッダーのHTML構造・クラス・要素数はすべて固定．変更してよいのはテキスト内容のみ．
+  各プレースホルダーの意味：
+    ph-title   : 論文タイトル（改行は <br> のみ）
+    ph-tag ac  : 学会・シンポジウムの正式名称のみ（発表番号・日付を混入させない）
+    ph-tag[1]  : 発表番号のみ（例 PS-12）
+    ph-tag[2]  : 発表年月・会場のみ（例 2026年9月　東京都）
+    ※ ph-tag は3つ固定．増減禁止．
+    ph-authors : 著者名列記（上付き数字で所属対応）
+    ph-affil   : 所属機関名（<br> 区切り，著者名・連絡先を混入させない）
+-->
 <header class="ph">
   <div class="ph-inner">
     <!-- 左：タイトルのみ -->
     <h1 class="ph-title">
       研究タイトルをここに入力する：<br>副題がある場合はここに記述
     </h1>
-    <!-- 右：学会・発表情報（上）→ 著者名・所属（下）右揃え -->
+    <!-- 右：学会・発表情報（上）→ 著者名・所属（下）右揃え／構造変更禁止 -->
     <div class="ph-right">
       <div class="ph-tags">
+        <!-- ac クラスは学会名タグのみ付ける（強調色）-->
         <span class="ph-tag ac">ヒューマンインタフェースシンポジウム 20XX</span>
-        <span class="ph-tag">PS-○○</span>
-        <span class="ph-tag">20XX年○月　○○市</span>
+        <span class="ph-tag">PS-○○</span><!-- 発表番号のみ -->
+        <span class="ph-tag">20XX年○月　○○市</span><!-- 年月・会場のみ -->
       </div>
-      <p class="ph-authors">著者名 A<sup>1</sup>，著者名 B<sup>2</sup>，著者名 C<sup>1</sup></p>
-      <p class="ph-affil">
-        <sup>1</sup> 岡山県立大学 情報工学部 情報システム工学科<br>
-        <sup>2</sup> ○○大学 ○○学部 ○○学科
-      </p>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3mm">
+        <p class="ph-authors">著者名 A<sup>1</sup>，著者名 B<sup>2</sup>，著者名 C<sup>1</sup></p>
+        <p class="ph-affil">
+          <sup>1</sup> 岡山県立大学 情報工学部 情報システム工学科<br>
+          <sup>2</sup> ○○大学 ○○学部 ○○学科
+        </p>
+      </div>
     </div>
   </div>
 </header>
