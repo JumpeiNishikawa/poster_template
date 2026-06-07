@@ -237,6 +237,25 @@ html, body {
 .sc ul, .sc ol { padding-left: 2em; display: flex; flex-direction: column; gap: 2.5mm; }
 .sc li     { font-size: var(--fs-body); line-height: 1.8; text-align: left; }
 .sc li::marker { color: var(--col-secondary); font-weight: 700; }
+.sc-sh {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--col-primary);
+  border-left: 1.5mm solid var(--col-secondary);
+  padding-left: 2.5mm;
+  line-height: 1.3;
+}
+.sc strong.mk, .kv strong.mk {
+  font-weight: 700;
+  background: linear-gradient(transparent 48%, rgba(249,114,19,0.45) 48%);
+  padding: 0 0.3mm;
+}
+
+/* ラベル：内容 形式の行 — 改行時に継続行をコロン以降へぶら下げる */
+.kv { display: flex; align-items: baseline; }
+.kv > .k { flex-shrink: 0; font-weight: 700; }
+.kv > .v { flex: 1; min-width: 0; }
+.kvlist { display: flex; flex-direction: column; gap: 2mm; font-size: var(--fs-sub); line-height: 1.5; }
 
 /* 強調ボックス（ハイライト）— 考察・メッセージの強調に使う */
 .hbox {
@@ -254,6 +273,15 @@ html, body {
   padding: var(--pad-card);
   font-size: var(--fs-body); line-height: 1.85;
   background: rgba(80,47,142,0.05);
+}
+
+/* 緑強調ボックス（数量→記号など，補助色tealの文脈に使う） */
+.hbox-teal {
+  border-left: 1.5mm solid var(--col-teal);
+  border-radius: 0 var(--r-card) var(--r-card) 0;
+  padding: var(--pad-card);
+  font-size: var(--fs-body); line-height: 1.85;
+  background: rgba(40,126,136,0.06);
 }
 
 /* ================================================================
@@ -297,6 +325,103 @@ html, body {
   border-top: 0.3mm solid var(--col-border);
 }
 
+/* 複数の結果図を横並びにしたとき，キャプションを各図枠の下端に揃える */
+.result-figs {
+  max-width: 100%;
+  margin: 0;
+  align-items: start;
+}
+.result-figs .fig-wrap {
+  display: flex;
+  flex-direction: column;
+  background: var(--col-bg);
+}
+.result-figs .fig-wrap img {
+  width: 100%;
+  height: auto;
+}
+.result-figs .fig-cap {
+  margin-top: auto;
+}
+
+/* 概念チェイン図（名詞→特徴→名詞などをHTML/CSSで編集可能にする） */
+.chain-fig,
+.task-fig {
+  background: var(--col-bg);
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 0;
+  padding: 4mm;
+}
+.chain-list,
+.tf-chain {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+.chain-card,
+.tf-card {
+  border: 0.4mm solid var(--col-border);
+  border-radius: var(--r-chip);
+  background: var(--col-surface);
+  padding: 2.5mm 3.5mm;
+  display: flex;
+  align-items: baseline;
+  gap: 3mm;
+}
+.chain-kind,
+.tf-kind {
+  font-size: var(--fs-caption);
+  color: var(--col-on-primary);
+  line-height: 1.1;
+  font-weight: 700;
+  padding: 1mm 2.5mm;
+  border-radius: var(--r-chip);
+  flex-shrink: 0;
+  align-self: center;
+}
+.chain-word,
+.tf-word {
+  font-size: var(--fs-affil);
+  font-weight: 900;
+  color: var(--col-text);
+  line-height: 1.1;
+}
+.chain-card.primary,
+.tf-card.noun {
+  border-left: 2mm solid var(--col-primary);
+  background: rgba(80,47,142,0.06);
+}
+.chain-card.primary .chain-kind,
+.tf-card.noun .tf-kind { background: var(--col-primary); }
+.chain-card.secondary,
+.tf-card.feature {
+  border-left: 2mm solid var(--col-secondary);
+  background: rgba(249,114,19,0.07);
+}
+.chain-card.secondary .chain-kind,
+.tf-card.feature .tf-kind { background: var(--col-secondary); }
+.chain-arrow,
+.tf-arrow {
+  display: flex;
+  align-items: center;
+  gap: 2.5mm;
+  padding: 1.2mm 0 1.2mm 5mm;
+  color: var(--col-text-sub);
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+}
+.chain-arrow::before,
+.tf-arrow::before {
+  content: "↓";
+  font-size: var(--fs-sub);
+  font-weight: 900;
+  color: var(--col-muted);
+  line-height: 1;
+}
+
 /* ================================================================
    インライン引用タグ  <cite class="cr">[1]</cite>
    本文中に番号引用を挿入するときに使う．
@@ -309,6 +434,50 @@ cite.cr {
   font-style: normal;
   margin-left: 0.5mm;
   white-space: nowrap;
+}
+
+/* 条件比較表 — 縦にカードを積むより低く，操作と役割を並べて示す */
+.cond-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 0.4mm solid var(--col-border);
+  border-radius: var(--r-card);
+  background: var(--col-bg);
+  font-size: var(--fs-sub);
+  line-height: 1.45;
+}
+.cond-table th,
+.cond-table td {
+  padding: 2.2mm 2.5mm;
+  font-size: var(--fs-sub);
+  border-bottom: 0.3mm solid var(--col-border);
+  text-align: left;
+  vertical-align: top;
+}
+.cond-table th {
+  background: rgba(80,47,142,0.08);
+  color: var(--col-text-sub);
+  font-weight: 700;
+}
+.cond-table tr:last-child td { border-bottom: 0; }
+.cond-table .ct-cond {
+  font-weight: 900;
+  color: var(--col-primary);
+  white-space: nowrap;
+}
+.cond-table .ct-accent .ct-cond { color: var(--col-secondary); }
+.cond-table .ct-value {
+  font-weight: 900;
+  color: var(--col-primary);
+  white-space: nowrap;
+}
+.cond-table .ct-accent {
+  background: rgba(249,114,19,0.05);
+}
+.cond-table .ct-note {
+  color: var(--col-text-sub);
 }
 
 /* ================================================================

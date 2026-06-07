@@ -15,7 +15,7 @@
          - font-family は var(--font-*) 以外を禁止
     2. inline の text-align:center を禁止（中央揃えは CSS で定義済みの5箇所のみ）
     3. ポスター寸法の一致（:root の --poster-w/h と @page size，@media print 内の mm）
-    4. --fs-* が 24pt 未満でないか（--fs-refs の 22pt のみ例外）
+    4. --fs-* が spec の許容範囲内か（--fs-body は 28–36pt を許容）
 
   終了コード: 違反0なら0，1件以上なら1．
 */
@@ -91,7 +91,7 @@ while ((m = styleAttrRe.exec(htmlBody)) !== null) {
       errors.push([ln, `font-family の直書き禁止（var(--font-*) 経由のみ）: "${seg}"`]);
     }
     if (prop === 'text-align' && /center/i.test(val)) {
-      errors.push([ln, `inline の text-align:center 禁止（中央揃えは .n/.mv/.ml/.fc/.pf-fund のみ，CSSで定義済み）: "${seg}"`]);
+      errors.push([ln, `inline の text-align:center 禁止（中央揃えはCSS定義済みの部品のみ）: "${seg}"`]);
     }
   }
 }
@@ -126,12 +126,26 @@ if (!rootW || !rootH) {
   }
 }
 
-// ---- 4. フォントサイズ最小値（CSS定義部）----
+// ---- 4. フォントサイズ範囲（CSS定義部）----
+const fsRules = new Map([
+  ['title',   { min: 85, max: 100 }],
+  ['authors', { min: 40, max: 56 }],
+  ['affil',   { min: 30, max: 42 }],
+  ['tag',     { min: 24, max: 32 }],
+  ['heading', { min: 36, max: 52 }],
+  ['body',    { min: 28, max: 36 }],
+  ['sub',     { min: 24, max: 30 }],
+  ['caption', { min: 24, max: 28 }],
+  ['refs',    { min: 20, max: 24 }],
+]);
 const fsRe = /--fs-([a-z-]+):\s*([\d.]+)pt/g;
 let fm;
 while ((fm = fsRe.exec(src)) !== null) {
   const name = fm[1], pt = parseFloat(fm[2]);
-  if (pt < 24 && name !== 'refs') {
+  const rule = fsRules.get(name);
+  if (rule && (pt < rule.min || pt > rule.max)) {
+    errors.push([lineOf(fm.index), `--fs-${name} が許容範囲外（${pt}pt）．許容: ${rule.min}–${rule.max}pt`]);
+  } else if (!rule && pt < 24 && name !== 'refs') {
     errors.push([lineOf(fm.index), `--fs-${name} が 24pt 未満（${pt}pt）．24pt未満は --fs-refs のみ許容`]);
   }
 }

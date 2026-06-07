@@ -14,7 +14,7 @@
   終了コード: 正常出力かつ1ページなら0，溢れ検出なら1，失敗なら2．
 */
 
-import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync, unlinkSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -61,6 +61,7 @@ if (!browser) {
 const fileUrl = pathToFileURL(targetPath).href;
 const pdfPath = resolve(outAbs, 'poster.pdf');
 const pngPath = resolve(outAbs, 'poster.png');
+const src = readFileSync(targetPath, 'utf8');
 
 // プレビューJSはウィンドウ幅で縮小表示する．スクショは縦長窓で撮ってヘッダーを確実に含める．
 const commonFlags = ['--headless=new', '--disable-gpu', '--no-sandbox', '--hide-scrollbars'];
@@ -86,6 +87,52 @@ const pngArgs = ['--screenshot=' + pngPath, '--window-size=1190,1684'];
 pngArgs._artifact = pngPath;
 const pngOk = run(pngArgs, 'PNG出力');
 
+// ---- レイアウト高さの実測（screen側のtransformを避け，offset/scroll寸法からmm換算）----
+function measureLayout() {
+  const probePath = resolve(outAbs, '__layout_probe__.html');
+  const probeScript = `
+<script>
+(() => {
+  const poster = document.querySelector('#poster');
+  const pb = document.querySelector('.pb');
+  const ph = document.querySelector('.ph');
+  const pf = document.querySelector('.pf');
+  const readMM = (name) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
+  const pageWmm = readMM('--poster-w');
+  const pageHmm = readMM('--poster-h');
+  const pxPerMm = poster && pageWmm ? poster.offsetWidth / pageWmm : null;
+  const flowPx =
+    (ph ? ph.offsetHeight : 0) +
+    (pb ? pb.scrollHeight : 0) +
+    (pf ? pf.offsetHeight : 0);
+  const contentHmm = pxPerMm ? flowPx / pxPerMm : null;
+  const result = {
+    pageWmm,
+    pageHmm,
+    contentHmm,
+    remainingMm: contentHmm == null ? null : pageHmm - contentHmm
+  };
+  document.body.innerHTML = '<pre id="__poster_layout__">' + JSON.stringify(result) + '</pre>';
+})();
+</script>`;
+  const html = src.replace(/<\/body>/i, `${probeScript}\n</body>`);
+  writeFileSync(probePath, html, 'utf8');
+  try {
+    const r = spawnSync(browser, [...commonFlags, '--dump-dom', pathToFileURL(probePath).href], {
+      encoding: 'utf8', timeout: 120000,
+    });
+    const m = (r.stdout || '').match(/<pre id="__poster_layout__">([^<]+)<\/pre>/);
+    if (!m) return null;
+    return JSON.parse(m[1]);
+  } catch {
+    return null;
+  } finally {
+    try { unlinkSync(probePath); } catch {}
+  }
+}
+
+const layout = measureLayout();
+
 // ---- PDFページ数の判定 ----
 let pages = null;
 if (pdfOk && existsSync(pdfPath)) {
@@ -99,6 +146,13 @@ const kb = (p) => existsSync(p) ? Math.round(statSync(p).size / 1024) : 0;
 console.log(`  ブラウザ : ${browser.includes('msedge') ? 'Edge' : 'Chrome'}`);
 if (pdfOk) console.log(`  PDF      : ${pdfPath}  (${kb(pdfPath)} KB)`);
 if (pngOk) console.log(`  PNG      : ${pngPath}  (${kb(pngPath)} KB)`);
+if (layout && layout.contentHmm != null) {
+  const remaining = layout.remainingMm;
+  const fit = remaining >= 0
+    ? `余裕 ${remaining.toFixed(1)} mm`
+    : `超過 ${Math.abs(remaining).toFixed(1)} mm`;
+  console.log(`  高さ    : ${layout.contentHmm.toFixed(1)} / ${layout.pageHmm.toFixed(1)} mm  (${fit})`);
+}
 
 if (pages != null) {
   if (pages <= 1) {
