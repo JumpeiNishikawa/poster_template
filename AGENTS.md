@@ -11,6 +11,7 @@
 | `poster_spec.md` | 制作仕様書（可変4項目と固定項目のルール） |
 | `tools/lint.mjs` | spec違反の静的チェッカー（依存なし・Node） |
 | `tools/render.mjs` | Chrome/Edge headless で PDF/PNG 出力＋溢れ検出 |
+| `tools/view_pdf.ps1` | 参照PDF（お手本・前年版・入稿前確認）を画像化して見比べる |
 | `tools/new-poster.ps1` | 別フォルダに案件一式を生成 |
 | `tools/scaffold/` | 案件にコピーされる雛形（AGENTS.md / content.md / docs/） |
 

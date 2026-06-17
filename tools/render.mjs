@@ -67,10 +67,14 @@ const src = readFileSync(targetPath, 'utf8');
 const commonFlags = ['--headless=new', '--disable-gpu', '--no-sandbox', '--hide-scrollbars'];
 
 function run(extra, label) {
+  // 描画前に前回の成果物を消す．これをしないと，今回の描画が失敗しても古いファイルが
+  // 残り，存在チェックが通って「成功した」と誤検出してしまう（stale artifact）．
+  try { unlinkSync(extra._artifact); } catch {}
   const r = spawnSync(browser, [...commonFlags, ...extra, fileUrl], {
     encoding: 'utf8', timeout: 120000,
   });
-  if (r.status !== 0 && !existsSync(extra._artifact)) {
+  // 「今回の描画で実際にファイルが生成されたか」で判定する（status異常 “または” 未生成なら失敗）．
+  if (r.status !== 0 || !existsSync(extra._artifact)) {
     console.error(`✗ ${label} 失敗: ${(r.stderr || r.error || '').toString().slice(0, 400)}`);
     return false;
   }

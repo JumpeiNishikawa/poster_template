@@ -7,6 +7,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
 
 /*
+  【印刷用フォント】編集・プレビュー時は上の Google Fonts オンライン読込でよい．
+  ただし印刷用の最終成果物では，使用字種をサブセット化したローカル woff2 に切り替えることを推奨する
+  （印刷PC・印刷所・オフラインでオンライン読込が効かず無言でフォントが化けるのを防ぐ）．
+  手順は docs/FONT_EMBEDDING.md．切り替え時は上の @import を消して下を有効化する：
+
+  @font-face {
+    font-family: 'Noto Sans JP'; font-style: normal; font-weight: 400 900;
+    font-display: block; src: url('fonts/NotoSansJP-subset.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Noto Serif JP'; font-style: normal; font-weight: 400 900;
+    font-display: block; src: url('fonts/NotoSerifJP-subset.woff2') format('woff2');
+  }
+*/
+
+/*
   ================================================================
   THEME — ここだけ書き換えれば全体に反映
   ================================================================
@@ -791,6 +807,26 @@ cite.cr {
 
   fit();
   window.addEventListener('resize', fit);
+})();
+</script>
+
+<script>
+/* フォント未読込検知バナー：指定フォントが適用されているかを確認し，未読込なら画面最上部に
+   警告帯を出す．印刷PC・オフラインでの “無言のフォント化け” に気づくための保険．
+   正常時は何も生成しないので PDF / PNG には写り込まない（位置は fixed でレイアウトに影響しない）． */
+(function () {
+  function check() {
+    var need = ['400 16px "Noto Sans JP"', '900 16px "Noto Sans JP"'];
+    var missing = need.filter(function (s) { return !document.fonts.check(s); });
+    if (!missing.length) return;
+    var bar = document.createElement('div');
+    bar.id = 'font-warning';
+    bar.textContent = '⚠ 指定フォント未読込（' + missing.join(' / ') + '）— オンライン接続か fonts/ の woff2 を確認してから印刷してください';
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#CC2200;color:#fff;font:bold 13px sans-serif;padding:6px 10px;text-align:center;';
+    document.body.appendChild(bar);
+  }
+  if (document.fonts && document.fonts.ready) { document.fonts.ready.then(check); }
+  else { window.addEventListener('load', check); }
 })();
 </script>
 </body>

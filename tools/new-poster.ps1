@@ -41,18 +41,21 @@ New-Item -ItemType Directory -Path (Join-Path $projectDir 'tools')   -Force | Ou
 New-Item -ItemType Directory -Path (Join-Path $projectDir 'figures') -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $projectDir 'out')     -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $projectDir 'docs')    -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $projectDir 'fonts')   -Force | Out-Null
 
 # ---- ファイルコピー ----
 Copy-Item (Join-Path $templateRoot 'poster_template.html') (Join-Path $projectDir 'poster.html')
 Copy-Item (Join-Path $templateRoot 'poster_spec.md')       (Join-Path $projectDir 'poster_spec.md')
 Copy-Item (Join-Path $templateRoot 'tools\lint.mjs')       (Join-Path $projectDir 'tools\lint.mjs')
 Copy-Item (Join-Path $templateRoot 'tools\render.mjs')     (Join-Path $projectDir 'tools\render.mjs')
+Copy-Item (Join-Path $templateRoot 'tools\view_pdf.ps1')   (Join-Path $projectDir 'tools\view_pdf.ps1')
 Copy-Item (Join-Path $templateRoot 'tools\scaffold\AGENTS.md')  (Join-Path $projectDir 'AGENTS.md')
 Copy-Item (Join-Path $templateRoot 'tools\scaffold\content.md') (Join-Path $projectDir 'content.md')
 Copy-Item (Join-Path $templateRoot 'tools\scaffold\docs\*.md')  (Join-Path $projectDir 'docs')
 
-# ---- figures / out を git管理に乗せるための placeholder ----
+# ---- figures / fonts / out を git管理に乗せるための placeholder ----
 New-Item -ItemType File -Path (Join-Path $projectDir 'figures\.gitkeep') | Out-Null
+New-Item -ItemType File -Path (Join-Path $projectDir 'fonts\.gitkeep')   | Out-Null
 
 # ---- .gitignore（out は成果物なので除外）----
 @"
