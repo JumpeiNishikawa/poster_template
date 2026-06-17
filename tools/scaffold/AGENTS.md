@@ -53,6 +53,7 @@ git status --short
 - **印刷前にフォントを埋め込む。** 画面プレビューはオンライン読込でよいが、印刷・入稿用の最終成果物はフォントをローカル woff2 に埋め込む（手順 `docs/FONT_EMBEDDING.md`）。未読込なら画面に `#font-warning` の赤帯が出る。外部JS（アイコンライブラリ等）を使う場合も同様に CDN ではなくローカルに同梱し、オフライン・印刷PCで壊れないようにする。
 - **画面を信用せず PDF を実測する。** ページ数や溢れは画面表示ではなく `node tools/render.mjs` の出力で確認する（`poster_spec.md §6-1`）。
 - **参照PDF（お手本・前年版）は画像で見比べる。** `pwsh tools/view_pdf.ps1 -Pdf <参照PDF>` で PNG 化して `out/` に出す。
+- **安定版の最終成果物だけ Git に含める。** `out/` の中間物は無視されるが、`out/poster.pdf` / `out/poster.png` は追跡対象。「これで確定」のときだけ `git add out/poster.pdf out/poster.png` して commit する（GitHub 公開・配布用。毎レンダーで自動コミットはしない）。
 
 ## 図とレイアウトの方針
 

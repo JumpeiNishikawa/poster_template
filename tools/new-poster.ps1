@@ -57,10 +57,13 @@ Copy-Item (Join-Path $templateRoot 'tools\scaffold\docs\*.md')  (Join-Path $proj
 New-Item -ItemType File -Path (Join-Path $projectDir 'figures\.gitkeep') | Out-Null
 New-Item -ItemType File -Path (Join-Path $projectDir 'fonts\.gitkeep')   | Out-Null
 
-# ---- .gitignore（out は成果物なので除外）----
+# ---- .gitignore（out の中間物は除外，安定版の最終成果物のみ追跡）----
 @"
-out/
-*.pdf
+# レンダリング作業中の中間物は追跡しない
+out/*
+# 安定版の最終成果物は追跡に含める（GitHub公開・配布用）．確定時だけ git add する．
+!out/poster.pdf
+!out/poster.png
 "@ | Set-Content -Path (Join-Path $projectDir '.gitignore') -Encoding utf8
 
 # ---- .gitattributes（改行コード固定）----
