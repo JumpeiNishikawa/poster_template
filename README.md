@@ -21,10 +21,10 @@ PowerPoint のようなバイナリを正本にせず、本文・レイアウト
 ## クイックスタート
 
 ```powershell
-# 新しいポスター案件を生成（$HOME\dev\posters\his2026\ に自己完結プロジェクト＋git初期化）
-pwsh tools/new-poster.ps1 -Name his2026
+# 新しいポスター案件を生成（$HOME\dev\posters\symposium2026\ に自己完結プロジェクト＋git初期化）
+pwsh tools/new-poster.ps1 -Name symposium2026
 
-cd $HOME\dev\posters\his2026
+cd $HOME\dev\posters\symposium2026
 #  → content.md に素材を記入 → poster.html に流し込み
 node tools/lint.mjs        # 仕様チェック
 node tools/render.mjs      # out/poster.pdf + out/poster.png 生成＆1枚に収まるか判定
@@ -128,7 +128,7 @@ PDF のページ数を実測する（`poster_spec.md §6-1` の落とし穴）�
 - **構造** — 表裏・台紙のような紙面固有の構造は案件側で実装する。テンプレの単一ページ構造に縛られない。
 - **作法は流用** — 変数化・oklch 新規色・フォント埋め込み・参照PDF比較・PDF実測は、A版資料でもそのまま有効。
 
-実績：`2026 OPU オープンキャンパス A4チラシ`。そこで得た汎用知見は本テンプレに還元済み（`docs/DECISIONS.md` 2026-06-17）。
+実績：`オープンキャンパス向け A4チラシ`（派生案件）。そこで得た汎用知見は本テンプレに還元済み（`docs/DECISIONS.md` 2026-06-17）。
 
 ---
 

@@ -18,8 +18,8 @@
 ## 新しいポスターを作る（標準フロー）
 
 ```powershell
-pwsh tools/new-poster.ps1 -Name his2026
-# → $HOME\dev\posters\his2026\ に自己完結プロジェクトを生成（git初期化込み）
+pwsh tools/new-poster.ps1 -Name symposium2026
+# → $HOME\dev\posters\symposium2026\ に自己完結プロジェクトを生成（git初期化込み）
 ```
 
 生成フォルダには `poster.html` / `poster_spec.md` / `content.md` / `AGENTS.md` /

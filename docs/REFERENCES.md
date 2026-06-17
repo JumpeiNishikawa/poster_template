@@ -1,6 +1,6 @@
 # References
 
-## JSAI2026poster Lessons
+## Earlier Poster Project Lessons
 
 - Prefer project-local `AGENTS.md` plus docs memory for handoff.
 - Use compact condition tables instead of stacked condition cards when result sections threaten A0 overflow.

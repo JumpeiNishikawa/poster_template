@@ -10,7 +10,7 @@
   生成時にテンプレの来歴（commit）を docs/PROJECT_LOG.md に刻む（知見還元=harvest の基準）．
 
 .PARAMETER Name
-  案件名（フォルダ名になる）．例: his2026, cogsci2026_attention
+  案件名（フォルダ名になる）．例: symposium2026, conference2026_topic
 
 .PARAMETER Dest
   生成先の親ディレクトリ．省略時は $HOME\dev\posters．
@@ -24,9 +24,9 @@
   poster.html・content.md・docs（案件の所有物）には触れない．git commit もしない（レビューは手動）．
 
 .EXAMPLE
-  pwsh tools/new-poster.ps1 -Name his2026
-  pwsh tools/new-poster.ps1 -Name cogsci2026 -Dest D:\work\posters
-  pwsh tools/new-poster.ps1 -Name his2026 -RefreshTools   # 既存案件のツールだけ更新
+  pwsh tools/new-poster.ps1 -Name symposium2026
+  pwsh tools/new-poster.ps1 -Name conference2026 -Dest D:\work\posters
+  pwsh tools/new-poster.ps1 -Name symposium2026 -RefreshTools   # 既存案件のツールだけ更新
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Name,

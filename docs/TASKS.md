@@ -2,7 +2,7 @@
 
 ## Done
 
-- [x] Incorporate JSAI2026poster template lessons into reusable scaffolding and CSS.
+- [x] Incorporate an earlier poster project's template lessons into reusable scaffolding and CSS.
 - [x] Add portable project-memory files for future poster projects.
 
 ## Follow-Up
