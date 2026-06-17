@@ -49,3 +49,21 @@ Embedding fonts is recommended (not forced) because a template cannot pre-subset
 
 `tools/new-poster.ps1` now also distributes `tools/view_pdf.ps1`, `docs/FONT_EMBEDDING.md`, and a `fonts/` directory to each project. `poster_spec.md`, the template HTML, `ai_poster_workflow.md`, `scaffold/AGENTS.md`, and the maintainer guides were updated. The inbox note is fully consumed and removed.
 
+## 2026-06-17: Project Spin-Up Stays "Generate Self-Contained" (not fork / not path-reference)
+
+### Decision
+
+Concrete posters/flyers are created by `tools/new-poster.ps1` as self-contained copies (each its own git repo), **not** by forking this template repo and **not** by pointing an agent at this repo's path. Template updates do not auto-propagate; learnings flow back via the harvest procedure (`docs/BACKPORT.md`). `new-poster.ps1` now stamps the source template commit into each project's `docs/PROJECT_LOG.md`, and `-RefreshTools` re-copies framework files (tools + `poster_spec.md`) into an existing project on demand.
+
+### Rationale
+
+Evaluated against self-containment, downstream-agent autonomy, GitHub publishing, update propagation, and knowledge return:
+
+- **Fork** carries updates both ways (upstream merge / PR) but bundles the whole templating apparatus into every single-artifact project, and merges are painful because projects heavily rewrite `poster_template.html`.
+- **Empty folder + path reference** always sees the latest template but breaks self-containment (no standalone lint/render), breaks handoff, and forces the downstream CLI agent to juggle two locations.
+- **Generate** keeps each poster self-contained and trivially publishable (git-init'd → push = its own GitHub repo); its only cost is manual update/return, which the harvest procedure and `-RefreshTools` make explicit and repeatable.
+
+### Impact
+
+`new-poster.ps1` gains provenance stamping and `-RefreshTools`; `docs/BACKPORT.md` (maintainer-side apply) and `scaffold/docs/HARVEST.md` (project-side extract) document the round-trip; `scaffold/AGENTS.md` instructs each project to harvest on completion. Also: `out/` now tracks only the stable `poster.pdf`/`poster.png` (GitHub publishing), with working renders still ignored.
+
