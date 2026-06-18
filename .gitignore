@@ -4,3 +4,6 @@ out/*
 # 「これで確定」のときだけ git add して commit する運用（毎レンダーで自動コミットはしない）．
 !out/poster.pdf
 !out/poster.png
+
+# 色彩レイヤの観察用「仮置き」デモ（テンプレ検証専用・コミットしない）
+color-demo.html

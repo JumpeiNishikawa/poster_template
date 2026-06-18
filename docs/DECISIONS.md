@@ -67,3 +67,24 @@ Evaluated against self-containment, downstream-agent autonomy, GitHub publishing
 
 `new-poster.ps1` gains provenance stamping and `-RefreshTools`; `docs/BACKPORT.md` (maintainer-side apply) and `scaffold/docs/HARVEST.md` (project-side extract) document the round-trip; `scaffold/AGENTS.md` instructs each project to harvest on completion. Also: `out/` now tracks only the stable `poster.pdf`/`poster.png` (GitHub publishing), with working renders still ignored.
 
+## 2026-06-18: Color Layer — Gradients & Bleed Derived From the 2 Brand Colors (OKLCH)
+
+### Decision
+
+Add an optional **color layer** (natural gradients + "にじみ"/bleed blobs) to the template, taking the adoptable ideas from an external proposal (`html_poster_color_system_proposal.md`). Adopted: (1) **role-based gradient tokens** (`--grad-page/header/heading/accent/flow`, `--col-surface-tint`, `--blob-*`); (2) **three strength tiers** (`subtle`/`medium`/`strong`) defined by OKLCH L/C deltas; (3) **block-by-block usage rules** and a **print/readability checklist** (`poster_spec.md §2-4`, `§4-6`, `§6-2`); (4) opt-in classes `.blob-layer` / `.sc--tint` / `.flow-band` / `.badge`.
+
+**Explicitly *not* adopted** (kept in the repo's spirit): the proposal's external `theme/*.yml` files. The template is single-file by rule (`poster_spec.md §1`), so the same token system is **internalized into `:root`**. The proposal's separate token palette would also fork from the existing "edit only the 2 brand colors" promise.
+
+### Rationale
+
+The repo already derives the whole poster from `--col-primary` / `--col-secondary`. Rather than introduce a parallel palette, **all gradient/bleed colors are auto-derived from those 2 colors via OKLCH relative color** (`oklch(from var(--col-primary) … )`), so swapping the 2 vars still re-tones every gradient — the existing promise is preserved, not broken. Engineering choices that match the repo's defensive style:
+
+- **Graceful degradation:** the whole layer lives in one `@supports (color: oklch(from white l c h)) and (background: linear-gradient(in oklab, …))` block. Unsupported browsers fall back to the original solid colors — same paranoia as the `#font-warning` detector.
+- **`@supports`/print-block ordering:** the new CSS is inserted *before* `@media print` so the block stays last before `</style>` and `lint.mjs`'s dimension regex keeps matching.
+- **`isolation: isolate` on `#poster`** so the `z-index:-1` bleed layer paints behind content identically on screen and in the static-positioned print layout.
+- **Defaults stay conservative:** only the subtle page/header/heading gradients are on by default (verified the template still renders 1 page, 56.5 mm headroom). Bleed blobs, tinting, flow bands, badges are opt-in.
+
+### Impact
+
+`poster_template.html` gains the `:root` tokens, the `@supports` color layer, and the opt-in classes (default look essentially unchanged — subtler, not flatter). `poster_spec.md` gains §2-4 (color layer + strength tiers + usage table), §4-6 (class reference), §6-2 (pre-print checklist), and a version bump to 1.1. Generated projects inherit all of this automatically (`new-poster.ps1` copies the template HTML + `poster_spec.md`). A throwaway showcase, `color-demo.html` (git-ignored via `.gitignore`; not committed), exercises every new element and renders to 1 page (165 mm headroom); both files pass `lint.mjs`.
+

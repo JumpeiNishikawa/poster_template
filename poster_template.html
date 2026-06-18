@@ -124,6 +124,7 @@ html, body {
   top: 0; left: 0;
   transform-origin: top left;
   overflow: visible;
+  isolation: isolate;   /* にじみ装飾レイヤ(.blob-layer, z-index:-1)を画面・印刷とも背面に固定 */
   box-shadow: 0 6px 48px rgba(0,0,0,0.22);
   display: flex;
   flex-direction: column;
@@ -535,6 +536,98 @@ cite.cr {
 
 /* 非表示ユーティリティ — QR・謝辞が不要なときに使う */
 .hidden { display: none !important; }
+
+/* ================================================================
+   色彩レイヤ — グラデーション・にじみ（任意・控えめ既定）
+   仕様は poster_spec.md §2-4．
+   ・色はすべて --col-primary / --col-secondary から OKLCH 相対色で自動派生．
+     2色を差し替えれば階調も追従する（個別調整不要）．
+   ・OKLCH相対色 未対応ブラウザでは @supports で無効化し，従来どおりの単色にフォールバック．
+   ・既定ON ：ページ背景／ヘッダー帯／見出し帯（subtle〜medium）．
+   ・既定OFF：.blob-layer（にじみ）／.sc--tint／.flow-band／.badge（クラスで有効化）．
+   ================================================================ */
+
+/* にじみ装飾レイヤ（既定OFF）．<article id="poster"> 直下に次を置くと有効になる：
+     <div class="blob-layer" aria-hidden="true">
+       <span class="blob blob--1"></span>
+       <span class="blob blob--2"></span>
+       <span class="blob blob--3"></span>
+     </div>
+   端・余白に寄せた淡いぼかし面で空気感を出す．本文・カードの背後では隠れる（背面・subtle）．
+   最終印刷でバンディングが気になる場合は opacity / blur を下げるか削除する（spec §6-2）． */
+.blob-layer {
+  position: absolute; inset: 0; z-index: -1;
+  overflow: hidden; pointer-events: none;
+}
+.blob { position: absolute; border-radius: 50%; filter: blur(34mm); }
+.blob--1 { width: 360mm; height: 360mm; top: -140mm; left: -120mm; }
+.blob--2 { width: 440mm; height: 440mm; bottom: -190mm; right: -160mm; }
+.blob--3 { width: 300mm; height: 300mm; top: 46%; right: -170mm; }
+
+/* 図解の「流れ・連続量」を示す帯（任意）．凡例と対応が取れるときのみ使う．
+   文字を載せる場合は内側に淡いサーフェスを挟む（spec §2-4）． */
+.flow-band { border-radius: var(--r-card); min-height: 14mm; background: var(--col-surface); }
+
+/* インラインのラベル・バッジ（任意，小面積・高コントラスト） */
+.badge {
+  display: inline-flex; align-items: center;
+  font-size: var(--fs-caption); font-weight: 700; line-height: 1;
+  color: var(--col-on-secondary); background: var(--col-secondary);
+  border-radius: var(--r-chip); padding: 1.5mm 3mm;
+}
+.badge--soft { color: var(--col-primary); background: var(--col-surface); }
+
+/* --- OKLCH 相対色が使える環境でのみ：派生トークン定義＋グラデーション適用 --- */
+@supports (color: oklch(from white l c h)) and (background: linear-gradient(in oklab, red, blue)) {
+  :root {
+    /* primary / secondary の明暗派生 */
+    --col-primary-soft:   oklch(from var(--col-primary)   calc(l + 0.12) calc(c * 0.85) h);
+    --col-primary-deep:   oklch(from var(--col-primary)   calc(l - 0.10) c h);
+    --col-secondary-soft: oklch(from var(--col-secondary) calc(l + 0.10) calc(c * 0.88) h);
+
+    /* カードの淡い色付け（subtle）／にじみ blob 色 */
+    --col-surface-tint: oklch(from var(--col-primary) 0.975 calc(c * 0.30) h);
+    --blob-primary:     oklch(from var(--col-primary)   0.74 calc(c * 0.95) h);
+    --blob-secondary:   oklch(from var(--col-secondary) 0.80 calc(c * 0.92) h);
+
+    /* ページ背景：subtle（紙の単調さをわずかに弱める．文字領域は明るく保つ） */
+    --grad-page: linear-gradient(in oklab 160deg,
+      oklch(from var(--col-primary)   0.985 calc(c * 0.16) h) 0%,
+      var(--col-bg) 42%,
+      oklch(from var(--col-secondary) 0.985 calc(c * 0.14) h) 100%);
+
+    /* ヘッダー帯：medium（主色を斜めに深める） */
+    --grad-header: linear-gradient(in oklab 105deg,
+      var(--col-primary-deep) 0%,
+      var(--col-primary) 60%,
+      oklch(from var(--col-primary) calc(l + 0.02) calc(c * 1.05) calc(h + 14)) 100%);
+
+    /* 見出し帯：medium（主色→やや明） */
+    --grad-heading: linear-gradient(in oklab 100deg,
+      var(--col-primary) 0%,
+      var(--col-primary-soft) 100%);
+
+    /* アクセント／図解の流れ（medium） */
+    --grad-accent: linear-gradient(in oklab 100deg,
+      var(--col-secondary) 0%,
+      oklch(from var(--col-secondary) calc(l + 0.06) c calc(h - 12)) 100%);
+    --grad-flow: linear-gradient(in oklab 90deg,
+      var(--col-primary-soft) 0%, var(--col-secondary-soft) 100%);
+  }
+
+  /* 既定ON：背景・帯にグラデーションを重ねる（直前の単色宣言がフォールバックとして残る） */
+  #poster   { background: var(--grad-page); }
+  .ph       { background: var(--grad-header); }
+  .sc-title { background: var(--grad-heading); }
+
+  /* 任意クラスの配色（トークンが定義されるこのブロック内で指定） */
+  .blob--1     { background: var(--blob-primary);   opacity: 0.42; }
+  .blob--2     { background: var(--blob-secondary); opacity: 0.42; }
+  .blob--3     { background: var(--blob-primary);   opacity: 0.28; }
+  .sc--tint    { background: var(--col-surface-tint); }
+  .flow-band   { background: var(--grad-flow); }
+  .badge--soft { background: var(--col-surface-tint); }
+}
 
 /* ================================================================
    印刷：transform 解除・mm実寸でA0出力
