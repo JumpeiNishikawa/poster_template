@@ -1,5 +1,22 @@
 # Decisions
 
+## 2026-06-19: Contrast Checking (WCAG 2.1 AA) in lint + secondary-as-text rule
+
+### Decision
+
+`tools/lint.mjs` now checks the contrast of fixed text-on-surface pairs against **WCAG 2.1 AA** (the W3C standard; JIS X 8341-3 matches it). `< 3.0:1` is an error (fails even large-text AA), `< 4.5:1` is a warning (below normal-text AA). Deliberately de-emphasized text (`--col-muted`, `--col-text-sub`) is reported as info only.
+
+The default secondary (#F97213 orange) cannot carry white text (2.82:1) nor be used as text on white. Rule adopted (`poster_spec.md §3-7`): **orange is used as a shape/fill** (borders, number-badge ground, list-markers, `.mk` marker, blobs — not contrast-checked), but **white-on-orange and orange-text-on-white are not allowed**. To comply, the template recolors the digit in `.n`, the `feature`/`secondary` kind labels, and `.badge` to `--col-text` (dark on orange ≈ 6.55:1), and the `cond-table` accent row now differentiates by background tint only (no orange text).
+
+### Rationale
+
+The user asked to add contrast judgment for text on markers/colored blocks. WCAG 2.1 AA is the right basis. The check surfaced a real issue in the shipped palette: orange is too light for white text. Rather than darken the brand orange, we keep it for shapes and require dark text on it — preserving the look while meeting AA. The check resolves hex/rgb(a)/oklch (incl. relative `from`) and composites alpha, so it stays correct as the 2 swappable colors change.
+
+### Impact
+
+- `tools/lint.mjs` exits 1 if any enforce pair is `< 4.5:1` (warning) or `< 3.0:1` (error); prints all ratios for reference.
+- Color swaps must keep enforce pairs ≥ AA (lint guards this). Gradient surfaces, `.sc--tint`, and figure/image colors are not statically checkable and are verified via AI visual review of the rendered PNG/PDF (`poster_spec.md §6-2` checklist).
+
 ## 2026-06-07: Generated Projects Use AGENTS.md First
 
 ### Decision
